@@ -1,1 +1,1 @@
-# mc-skins
+# my-mc-skins
