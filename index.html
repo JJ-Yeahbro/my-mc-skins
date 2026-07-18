@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>3D Minecraft Skins Void Grid</title>
+    <!-- skinview3d bundle v0.9.0 -->
     <script src="https://cdn.jsdelivr.net/npm/skinview3d@0.9.0/bundles/skinview3d.bundle.js"></script>
     <style>
         body {
@@ -97,14 +98,9 @@
             card.appendChild(nameLabel);
             gridContainer.appendChild(card);
 
-            // Safely encode special characters like spaces and parentheses for the URL fetch
-            const safePath = encodeURIComponent(skinFile)
-                .replace(/%2F/g, '/')
-                .replace(/\(/g, '%28')
-                .replace(/\)/g, '%29');
-
+            // Instantiate the viewer engine *after* appending elements to the active DOM
             const viewerInstance = new MinecraftSkinViewer(viewerId);
-            viewerInstance.display(safePath);
+            viewerInstance.display(skinFile);
         });
     </script>
 
