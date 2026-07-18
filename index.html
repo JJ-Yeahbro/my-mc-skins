@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Minecraft Skin Viewer</title>
+    <style>
+        /* Center everything on a pitch-black background */
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #000000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- This is where your skin viewer will load -->
+    <div id="my-skin-viewer"></div>
+
+    <!-- 1. Load your single script file -->
+    <script src="skin-viewer.js"></script>
+
+    <!-- 2. Run the command to load your skin -->
+    <script>
+        const skin = new MinecraftSkinViewer('my-skin-viewer');
+        
+        // Put your skin image name inside the quotes:
+        skin.display("./steve.png"); 
+    </script>
+
+</body>
+</html>
