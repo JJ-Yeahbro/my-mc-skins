@@ -1,5 +1,5 @@
 /**
- * Minecraft 3D Grid Skin Viewer Engine (Fixed & Enhanced)
+ * Minecraft 3D Grid Skin Viewer Engine (GitHub Pages & Control Patch)
  */
 class MinecraftSkinViewer {
     constructor(containerId) {
@@ -9,7 +9,7 @@ class MinecraftSkinViewer {
         this.isDragging = false;
         this.dragTimeout = null;
         
-        // Target angles for camera front-facing alignment
+        // Base targets for front-facing positioning
         this.targetAlpha = 0; 
         this.targetBeta = Math.PI / 2;
         this.snapSpeed = 0.05;
@@ -104,7 +104,7 @@ class MinecraftSkinViewer {
         const parent = document.getElementById(this.containerId);
         const canvas = parent.querySelector('.skin-canvas');
 
-        // Setup the viewer using standard configuration interface properties
+        // Create standard skinview3d object instance configuration
         this.skinViewer = new skinview3d.SkinViewer({
             canvas: canvas,
             width: 220,
@@ -115,46 +115,45 @@ class MinecraftSkinViewer {
         this.skinViewer.renderer.setClearColor(0x000000, 1.0);
         this.skinViewer.camera.position.z = 17;
 
-        // Initialize built-in controls handling configuration safely
+        // Correct binding lookup targeting native canvas mouse engine controls
         const orbitControls = this.skinViewer.controls;
         orbitControls.enableZoom = false;
         orbitControls.enablePan = false;
 
-        // Interactive states detection
+        // Set drag listeners
         canvas.addEventListener('mousedown', () => { this.isDragging = true; });
         canvas.addEventListener('touchstart', () => { this.isDragging = true; });
 
         const releaseDrag = () => {
             if (!this.isDragging) return;
             if (this.dragTimeout) clearTimeout(this.dragTimeout);
-            // Gives short buffer window to catch manual adjustment exit
             this.dragTimeout = setTimeout(() => { 
                 this.isDragging = false; 
-            }, 80);
+            }, 50);
         };
 
         window.addEventListener('mouseup', releaseDrag);
         window.addEventListener('touchend', releaseDrag);
 
-        // Render tick event loop hook
+        // Frame loop setup logic for gliding back and rotating smoothly
         this.skinViewer.on('update', () => {
             if (!this.isDragging) {
-                // Smoothly snap back to camera center
+                // Smooth glide transition back to baseline camera view coordinates
                 orbitControls.alpha += (this.targetAlpha - orbitControls.alpha) * this.snapSpeed;
                 orbitControls.beta += (this.targetBeta - orbitControls.beta) * this.snapSpeed;
 
-                // Rotate the player model cleanly on its axis if camera has settled
+                // Only spin the model when the camera angle returns near front center orientation
                 if (Math.abs(orbitControls.alpha - this.targetAlpha) < 0.2) {
                     this.autoRotateTime += 0.012;
                     this.skinViewer.playerObject.rotation.y = Math.sin(this.autoRotateTime) * 0.5;
                 }
             } else {
-                // Clear any manual offset tracking during interactive rotations
+                // Clear baseline rotation accumulation while user actively controls tracking orientation
                 this.skinViewer.playerObject.rotation.y = 0;
             }
         });
 
-        // Event hooks layout structure setup
+        // Interface triggers map assignment parameters
         const standBtn = parent.querySelector('.btn-stand');
         const walkBtn = parent.querySelector('.btn-walk');
         const sprintBtn = parent.querySelector('.btn-sprint');
@@ -165,20 +164,17 @@ class MinecraftSkinViewer {
         sprintBtn.addEventListener('click', () => this.setAnimation('sprint'));
         crouchBtn.addEventListener('click', () => this.setAnimation('crouch'));
 
-        // Initialize default active baseline animation loop execution state
         this.setAnimation('walk');
     }
 
     setAnimation(type) {
         if (!this.skinViewer) return;
 
-        // Wipe clean previous operational parameters loops gracefully
         if (this.activeAnimation) {
             this.activeAnimation.remove();
             this.activeAnimation = null;
         }
         
-        // Reset base physical offsets
         this.skinViewer.playerObject.position.y = 0;
         this.skinViewer.playerObject.position.z = 0;
 
@@ -187,7 +183,7 @@ class MinecraftSkinViewer {
 
         if (type === 'stand') {
             parent.querySelector('.btn-stand').classList.add('active');
-            // Reset to static zeroed frame configurations
+            // Clean positional rotation configuration vectors
             this.skinViewer.playerObject.skin.leftArm.rotation.x = 0;
             this.skinViewer.playerObject.skin.rightArm.rotation.x = 0;
             this.skinViewer.playerObject.skin.leftLeg.rotation.x = 0;
