@@ -1,5 +1,5 @@
 /**
- * Minecraft 3D Grid Skin Viewer Engine (Patched)
+ * Minecraft 3D Grid Skin Viewer Engine (Fixed & Enhanced)
  */
 class MinecraftSkinViewer {
     constructor(containerId) {
@@ -9,9 +9,10 @@ class MinecraftSkinViewer {
         this.isDragging = false;
         this.dragTimeout = null;
         
-        this.targetAlpha = Math.PI / 2;
+        // Target angles for camera front-facing alignment
+        this.targetAlpha = 0; 
         this.targetBeta = Math.PI / 2;
-        this.snapSpeed = 0.08;
+        this.snapSpeed = 0.05;
         this.autoRotateTime = Math.random() * 100;
 
         this._injectStyles();
@@ -89,6 +90,7 @@ class MinecraftSkinViewer {
         parent.innerHTML = `
             <canvas class="skin-canvas"></canvas>
             <div class="skin-controls">
+                <button class="skin-btn btn-stand">Stand</button>
                 <button class="skin-btn btn-walk active">Walk</button>
                 <button class="skin-btn btn-sprint">Sprint</button>
                 <button class="skin-btn btn-crouch">Crouch</button>
@@ -97,12 +99,12 @@ class MinecraftSkinViewer {
     }
 
     display(imageLocation) {
-        // Ensure the engine library exists globally before mounting canvas
         if (!window.skinview3d) return;
 
         const parent = document.getElementById(this.containerId);
         const canvas = parent.querySelector('.skin-canvas');
 
+        // Setup the viewer using standard configuration interface properties
         this.skinViewer = new skinview3d.SkinViewer({
             canvas: canvas,
             width: 220,
@@ -113,60 +115,85 @@ class MinecraftSkinViewer {
         this.skinViewer.renderer.setClearColor(0x000000, 1.0);
         this.skinViewer.camera.position.z = 17;
 
-        const orbitControls = skinview3d.createOrbitControls(this.skinViewer);
+        // Initialize built-in controls handling configuration safely
+        const orbitControls = this.skinViewer.controls;
         orbitControls.enableZoom = false;
         orbitControls.enablePan = false;
 
+        // Interactive states detection
         canvas.addEventListener('mousedown', () => { this.isDragging = true; });
         canvas.addEventListener('touchstart', () => { this.isDragging = true; });
 
         const releaseDrag = () => {
             if (!this.isDragging) return;
-            this.dragTimeout = setTimeout(() => { this.isDragging = false; }, 50);
+            if (this.dragTimeout) clearTimeout(this.dragTimeout);
+            // Gives short buffer window to catch manual adjustment exit
+            this.dragTimeout = setTimeout(() => { 
+                this.isDragging = false; 
+            }, 80);
         };
 
         window.addEventListener('mouseup', releaseDrag);
         window.addEventListener('touchend', releaseDrag);
 
+        // Render tick event loop hook
         this.skinViewer.on('update', () => {
-            if (this.isDragging) {
-                if (this.dragTimeout) clearTimeout(this.dragTimeout);
-            } else {
+            if (!this.isDragging) {
+                // Smoothly snap back to camera center
                 orbitControls.alpha += (this.targetAlpha - orbitControls.alpha) * this.snapSpeed;
                 orbitControls.beta += (this.targetBeta - orbitControls.beta) * this.snapSpeed;
 
-                if (Math.abs(orbitControls.alpha - this.targetAlpha) < 0.1) {
-                    this.autoRotateTime += 0.006;
-                    this.skinViewer.playerObject.rotation.y = Math.sin(this.autoRotateTime) * 0.4;
+                // Rotate the player model cleanly on its axis if camera has settled
+                if (Math.abs(orbitControls.alpha - this.targetAlpha) < 0.2) {
+                    this.autoRotateTime += 0.012;
+                    this.skinViewer.playerObject.rotation.y = Math.sin(this.autoRotateTime) * 0.5;
                 }
+            } else {
+                // Clear any manual offset tracking during interactive rotations
+                this.skinViewer.playerObject.rotation.y = 0;
             }
         });
 
+        // Event hooks layout structure setup
+        const standBtn = parent.querySelector('.btn-stand');
         const walkBtn = parent.querySelector('.btn-walk');
         const sprintBtn = parent.querySelector('.btn-sprint');
         const crouchBtn = parent.querySelector('.btn-crouch');
 
+        standBtn.addEventListener('click', () => this.setAnimation('stand'));
         walkBtn.addEventListener('click', () => this.setAnimation('walk'));
         sprintBtn.addEventListener('click', () => this.setAnimation('sprint'));
         crouchBtn.addEventListener('click', () => this.setAnimation('crouch'));
 
+        // Initialize default active baseline animation loop execution state
         this.setAnimation('walk');
     }
 
     setAnimation(type) {
         if (!this.skinViewer) return;
 
+        // Wipe clean previous operational parameters loops gracefully
         if (this.activeAnimation) {
             this.activeAnimation.remove();
             this.activeAnimation = null;
         }
+        
+        // Reset base physical offsets
         this.skinViewer.playerObject.position.y = 0;
         this.skinViewer.playerObject.position.z = 0;
 
         const parent = document.getElementById(this.containerId);
         parent.querySelectorAll('.skin-btn').forEach(b => b.classList.remove('active'));
 
-        if (type === 'walk') {
+        if (type === 'stand') {
+            parent.querySelector('.btn-stand').classList.add('active');
+            // Reset to static zeroed frame configurations
+            this.skinViewer.playerObject.skin.leftArm.rotation.x = 0;
+            this.skinViewer.playerObject.skin.rightArm.rotation.x = 0;
+            this.skinViewer.playerObject.skin.leftLeg.rotation.x = 0;
+            this.skinViewer.playerObject.skin.rightLeg.rotation.x = 0;
+        }
+        else if (type === 'walk') {
             parent.querySelector('.btn-walk').classList.add('active');
             this.activeAnimation = this.skinViewer.animations.add(skinview3d.WalkingAnimation);
             this.activeAnimation.speed = 1.0;
