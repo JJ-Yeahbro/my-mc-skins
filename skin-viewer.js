@@ -1,5 +1,5 @@
 /**
- * Minecraft 3D Grid Skin Viewer Engine
+ * Minecraft 3D Grid Skin Viewer Engine (Patched)
  */
 class MinecraftSkinViewer {
     constructor(containerId) {
@@ -9,11 +9,10 @@ class MinecraftSkinViewer {
         this.isDragging = false;
         this.dragTimeout = null;
         
-        // Elastic parameters
         this.targetAlpha = Math.PI / 2;
         this.targetBeta = Math.PI / 2;
         this.snapSpeed = 0.08;
-        this.autoRotateTime = Math.random() * 100; // Randomize start phase so they don't sync up roboticly
+        this.autoRotateTime = Math.random() * 100;
 
         this._injectStyles();
         this._buildMarkup();
@@ -53,7 +52,7 @@ class MinecraftSkinViewer {
                 border-radius: 20px;
                 border: 1px solid #222;
                 z-index: 10;
-                opacity: 0; /* Hidden by default, fades in on hover */
+                opacity: 0;
                 transition: opacity 0.2s ease;
             }
             .skin-canvas-wrapper:hover .skin-controls {
@@ -97,21 +96,9 @@ class MinecraftSkinViewer {
         `;
     }
 
-    _loadEngine() {
-        return new Promise((resolve) => {
-            if (window.skinview3d) {
-                resolve();
-                return;
-            }
-            const script = document.createElement('script');
-            script.src = 'https://cdn.jsdelivr.net/npm/skinview3d@0.9.0/bundles/skinview3d.bundle.js';
-            script.onload = () => resolve();
-            document.head.appendChild(script);
-        });
-    }
-
-    async display(imageLocation) {
-        await this._loadEngine();
+    display(imageLocation) {
+        // Ensure the engine library exists globally before mounting canvas
+        if (!window.skinview3d) return;
 
         const parent = document.getElementById(this.containerId);
         const canvas = parent.querySelector('.skin-canvas');
