@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>3D Minecraft Skins Void Grid</title>
+    <!-- Pre-load the 3D Engine immediately so the grid doesn't crash -->
+    <script src="https://cdn.jsdelivr.net/npm/skinview3d@0.9.0/bundles/skinview3d.bundle.js"></script>
     <style>
         body {
             margin: 0;
@@ -69,29 +71,13 @@
 
     <script src="skin-viewer.js"></script>
     <script>
-        // Loaded with your exact skin names
         const mySkins = [
-            "SKIN-1.png", 
-            "SKIN-2.png", 
-            "SKIN-3(current and preferred).png", 
-            "SKIN-4.png", 
-            "SKIN-5.png",
-            "SKIN-6.png", 
-            "SKIN-7.png", 
-            "SKIN-8.png", 
-            "SKIN-9.png", 
-            "SKIN-10.png",
-            "SKIN-11.png", 
-            "SKIN-12.png", 
-            "SKIN-13.png", 
-            "SKIN-14.png", 
-            "SKIN-15.png",
-            "SKIN-16.png", 
-            "SKIN-17.png", 
-            "SKIN-18.png", 
-            "SKIN-19.png", 
-            "SKIN-20.png",
-            "SKIN-21(Wither Skeleton).png"
+            "SKIN-1.png", "SKIN-2.png", "SKIN-3(current and preferred).png", 
+            "SKIN-4.png", "SKIN-5.png", "SKIN-6.png", "SKIN-7.png", 
+            "SKIN-8.png", "SKIN-9.png", "SKIN-10.png", "SKIN-11.png", 
+            "SKIN-12.png", "SKIN-13.png", "SKIN-14.png", "SKIN-15.png",
+            "SKIN-16.png", "SKIN-17.png", "SKIN-18.png", "SKIN-19.png", 
+            "SKIN-20.png", "SKIN-21(Wither Skeleton).png"
         ];
 
         const gridContainer = document.getElementById('void-grid');
@@ -106,14 +92,12 @@
 
             const nameLabel = document.createElement('div');
             nameLabel.className = 'skin-name';
-            // Cleans up the displayed name for the text label underneath
             nameLabel.innerText = skinFile.replace('.png', '').replace(/-/g, ' ');
 
             card.appendChild(viewerDiv);
             card.appendChild(nameLabel);
             gridContainer.appendChild(card);
 
-            // Fire up the viewer instance using a clean text reference path
             const viewerInstance = new MinecraftSkinViewer(viewerId);
             viewerInstance.display(skinFile);
         });
