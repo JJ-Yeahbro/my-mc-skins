@@ -3,35 +3,108 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3D Minecraft Skin Viewer</title>
+    <title>3D Minecraft Skins Void Grid</title>
     <style>
-        /* Center everything on a pitch-black background */
+        /* Base black background styling */
         body {
             margin: 0;
-            padding: 0;
+            padding: 20px;
             background-color: #000000;
+            font-family: sans-serif;
+            color: #fff;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
-            height: 100vh;
-            overflow: hidden;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            margin-bottom: 30px;
+            font-weight: 300;
+            letter-spacing: 2px;
+        }
+
+        /* Responsive grid layout that wraps dynamically */
+        .skins-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 25px;
+            width: 100%;
+            max-width: 1400px;
+        }
+
+        /* Single skin container block */
+        .skin-card {
+            background: #050505;
+            border: 1px solid #151515;
+            border-radius: 12px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: border-color 0.3s ease;
+        }
+
+        .skin-card:hover {
+            border-color: #333;
+        }
+
+        .skin-name {
+            margin-top: 12px;
+            font-size: 14px;
+            font-weight: bold;
+            color: #aaa;
+            letter-spacing: 0.5px;
         }
     </style>
 </head>
 <body>
 
-    <!-- This is where your skin viewer will load -->
-    <div id="my-skin-viewer"></div>
+    <h1>SKINS VOID GRID</h1>
 
-    <!-- 1. Load your single script file -->
+    <!-- The main grid where all 21 containers will dynamically build -->
+    <div class="skins-grid" id="void-grid"></div>
+
     <script src="skin-viewer.js"></script>
-
-    <!-- 2. Run the command to load your skin -->
     <script>
-        const skin = new MinecraftSkinViewer('my-skin-viewer');
-        
-        // Put your skin image name inside the quotes:
-        skin.display("./steve.png"); 
+        // LIST YOUR 21 SKINS HERE
+        // Make sure these match your actual PNG filenames exactly
+        const mySkins = [
+            "steve.png", "alex.png", "skin3.png", "skin4.png", "skin5.png",
+            "skin6.png", "skin7.png", "skin8.png", "skin9.png", "skin10.png",
+            "skin11.png", "skin12.png", "skin13.png", "skin14.png", "skin15.png",
+            "skin16.png", "skin17.png", "skin18.png", "skin19.png", "skin20.png",
+            "skin21.png"
+        ];
+
+        const gridContainer = document.getElementById('void-grid');
+
+        // Loop through all 21 skins and construct their grids instantly
+        mySkins.forEach((skinFile, index) => {
+            // 1. Create wrapper card
+            const card = document.createElement('div');
+            card.className = 'skin-card';
+
+            // 2. Create unique dynamic ID for the inner 3D viewer
+            const viewerId = `viewer-${index}`;
+            const viewerDiv = document.createElement('div');
+            viewerDiv.id = viewerId;
+
+            // 3. Create the text label underneath
+            const nameLabel = document.createElement('div');
+            nameLabel.className = 'skin-name';
+            nameLabel.innerText = skinFile.replace('.png', '').toUpperCase();
+
+            // Append elements together
+            card.appendChild(viewerDiv);
+            card.appendChild(nameLabel);
+            gridContainer.appendChild(card);
+
+            // 4. Fire up the 3D player inside that specific box
+            const viewerInstance = new MinecraftSkinViewer(viewerId);
+            viewerInstance.display("./" + skinFile);
+        });
     </script>
 
 </body>
